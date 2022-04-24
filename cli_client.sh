@@ -42,7 +42,7 @@ while test $# -gt 0; do
 		echo -e "                                                 a hash for registering in the Discord bot"
 		echo
 		echo -e "${C_LGn}Useful URLs${RES}:"
-		echo -e "https://github.com/SecorD0/Massa/blob/main/cli_client.sh - script URL"
+		echo -e "https://github.com/Phantom1605/Massa/blob/main/cli_client.sh - script URL"
 		echo -e "         (you can send Pull request with new texts to add a language)"
 		echo
 		return 0 2>/dev/null; exit 0
@@ -117,8 +117,8 @@ if [ "$language" = "RU" ]; then
 	
 	t_done="${C_LGn}Готово!${RES}"
 	t_err="${C_R}Нет такого действия!${RES}"
-	t_err_nwn="\n${C_R}Нода не работает!${RES}\nПосмотреть лог: ${C_LGn}massa_log${RES}\n"
-# Send Pull request with new texts to add a language - https://github.com/SecorD0/Massa/blob/main/cli_client.sh
+	t_err_nwn="\n${C_R}Нода не работает!${RES}\Посмотреть логи: ${C_LGn}massa_log${RES}\n"
+# Send Pull request with new texts to add a language - https://github.com/Phantom1605/Massa/blob/main/cli_client.sh
 #elif [ "$language" = ".." ]; then
 else
 	t_ni1="\nNode ID:                ${C_LGn}%s${RES}"
