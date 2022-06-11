@@ -1,6 +1,6 @@
 # Massa
 This is a script for installing Massa Protocol
-The script is relevant for the testnet network 11.0
+The script is relevant for the testnet network 11.1
 
 Run the script by command:
 ```
