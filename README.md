@@ -35,7 +35,8 @@ Links:
 
 [Discord](https://discord.gg/massa)
 
-GitHub - https://github.com/massalabs/massa
+[GitHub](https://github.com/massalabs/massa)
 
-URL - https://massa.net
+[Website](https://massa.net)
+
 
