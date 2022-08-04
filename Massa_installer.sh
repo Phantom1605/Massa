@@ -61,10 +61,24 @@ EOF
 }
 update() {
 	printf_n "${C_LGn}Node updating...${RES}"
-	if [ ! -f $HOME/massa/massa-client/wallet.dat ] || [ ! -f $HOME/massa/massa-client/node_privkey.key ]; then
-		mkdir -p $HOME/massa_backup
+	if [ ! -n "$massa_password" ]; then
+		printf_n "\n${C_R}There is no massa_password variable with the password, enter it to save it in the variable!${RES}"
+		. <(wget -qO- https://raw.githubusercontent.com/Phantom1605/Massa/main/insert-variables.sh) -n massa_password
+	fi
+	if [ ! -n "$massa_password" ]; then
+		printf_n "${C_R}There is no massa_password variable with the password!${RES}\n"
+		return 1 2>/dev/null; exit 1
+	fi
+	mkdir -p $HOME/massa_backup
+	if [ ! -f $HOME/massa_backup/wallet.dat ]; then
 		sudo cp $HOME/massa/massa-client/wallet.dat $HOME/massa_backup/wallet.dat
+	fi
+	if [ ! -f $HOME/massa_backup/node_privkey.key ]; then
 		sudo cp $HOME/massa/massa-node/config/node_privkey.key $HOME/massa_backup/node_privkey.key
+	fi
+	if grep -q "wrong password" <<< `cd $HOME/massa/massa-client/; ./massa-client -p "$massa_password" 2>&1; cd`; then
+		printf_n "\n${C_R}Wrong password!${RES}\n"
+		return 1 2>/dev/null; exit 1
 	fi
 	local massa_version=`wget -qO- https://api.github.com/repos/massalabs/massa/releases/latest | jq -r ".tag_name"`
 	wget -qO $HOME/massa.tar.gz "https://github.com/massalabs/massa/releases/download/TEST.13.0/massa_TEST.13.0_release_linux.tar.gz"
