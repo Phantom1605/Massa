@@ -4,7 +4,7 @@ The script is relevant for the testnet network 11.3
 
 Run the script by command:
 ```
-. <(wget -qO- https://raw.githubusercontent.com/Phantom1605/Massa/main/Massa_installer.sh
+. <(wget -qO- https://raw.githubusercontent.com/Phantom1605/Massa/main/Massa_installer.sh)
 ```
 1. Join to Discord. 
 2. Go to the testnet-rewards - registration chat and write any message.
