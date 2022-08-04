@@ -117,6 +117,9 @@ if [ "$language" = "RU" ]; then
 	
 	t_done="${C_LGn}Готово!${RES}"
 	t_err="${C_R}Нет такого действия!${RES}"
+	t_err_mp1="\n${C_R}Не существует переменной massa_password с паролем, введите его для сохранения в переменной!${RES}"
+	t_err_mp2="\n${C_R}Не существует переменной massa_password с паролем!${RES}\n"
+	t_err_wp="\n${C_R}Неверный пароль!${RES}\n"
 	t_err_nwn="\n${C_R}Нода не работает!${RES}\Посмотреть логи: ${C_LGn}massa_log${RES}\n"
 # Send Pull request with new texts to add a language - https://github.com/Phantom1605/Massa/blob/main/cli_client.sh
 #elif [ "$language" = ".." ]; then
@@ -161,6 +164,9 @@ else
 	
 	t_done="${C_LGn}Done!${RES}"
 	t_err="${C_R}There is no such action!${RES}"
+	t_err_mp1="\n${C_R}There is no massa_password variable with the password, enter it to save it in the variable!${RES}"
+	t_err_mp2="\n${C_R}There is no massa_password variable with the password!${RES}\n"
+	t_err_wp="\n${C_R}Wrong password!${RES}\n"
 	t_err_nwn="\n${C_R}Node isn't working!${RES}\nView the log: ${C_LGn}massa_log${RES}\n"
 fi
 
@@ -170,7 +176,7 @@ client() { ./massa-client; }
 node_info() {
 	local wallet_info=`./massa-client -j wallet_info`
 	local main_address=`jq -r "[.[]] | .[0].address_info.address" <<< "$wallet_info"`
-	local node_info=`./massa-client -j get_status | jq`
+	local node_info=`./massa-client -p "$massa_password" -j get_status | jq`
 	if [ "$raw_output" = "true" ]; then
 		printf_n "$node_info"
 	else
@@ -181,7 +187,7 @@ node_info() {
 		
 		local current_cycle=`jq -r ".current_cycle" <<< "$node_info"`
 		printf_n "$t_ni3" "$current_cycle"
-		#local draws_count=`./massa-client -j get_addresses "$main_address" | jq -r ".[0].block_draws | length" 2>/dev/null`
+		#local draws_count=`./massa-client -p "$massa_password" -j get_addresses "$main_address" | jq -r ".[0].block_draws | length" 2>/dev/null`
 		#if [ -n "$draws_count" ] && [ "$draws_count" -gt 0 ]; then
 		#	printf_n "$t_ni4" "$draws_count"
 		#else
@@ -203,7 +209,7 @@ node_info() {
 	fi
 }
 wallet_info() {
-	local wallet_info=`./massa-client -j wallet_info`
+	local wallet_info=`./massa-client -p "$massa_password" -j wallet_info`
 	local main_address=`jq -r "[.[]] | .[0].address_info.address" <<< "$wallet_info"`
 	if [ "$raw_output" = "true" ]; then
 		printf_n "`jq -r "[.[]]" <<< "$wallet_info"`"
@@ -241,14 +247,14 @@ wallet_info() {
 	fi
 }
 buy_rolls() {
-	local wallet_info=`./massa-client -j wallet_info`
+	local wallet_info=`./massa-client -p "$massa_password" -j wallet_info`
 	local main_address=`jq -r "[.[]] | .[0].address_info.address" <<< "$wallet_info"`
 	local balance=`jq -r "[.[]] | .[-1].address_info.balance.candidate_ledger_info.balance" <<< "$wallet_info"`
 	local roll_count=`printf "%d" $(bc -l <<< "$balance/100") 2>/dev/null`
 	if [ "$roll_count" -eq "0" ]; then
 		printf_n "$t_br1"
 	elif [ "$max_buy" = "true" ]; then
-		local resp=`./massa-client buy_rolls "$main_address" "$roll_count" 0`
+		local resp=`./massa-client -p "$massa_password" buy_rolls "$main_address" "$roll_count" 0`
 		if grep -q 'insuffisant balance' <<< "$resp"; then
 			printf_n "$t_br4"
 			return 1 2>/dev/null; exit 1
@@ -260,9 +266,9 @@ buy_rolls() {
 		local rolls_for_buy
 		read -r rolls_for_buy
 		if [ "$rolls_for_buy" -gt "$roll_count" ]; then
-			local resp=`./massa-client buy_rolls "$main_address" "$roll_count" 0`
+			local resp=`./massa-client -p "$massa_password" buy_rolls "$main_address" "$roll_count" 0`
 		else
-			local resp=`./massa-client buy_rolls "$main_address" "$rolls_for_buy" 0`
+			local resp=`./massa-client -p "$massa_password" buy_rolls "$main_address" "$rolls_for_buy" 0`
 		fi
 		if grep -q 'insuffisant balance' <<< "$resp"; then
 			printf_n "$t_br4"
@@ -273,9 +279,9 @@ buy_rolls() {
 	fi
 }
 node_add_staking_private_keys() {
-	local wallet_info=`./massa-client -j wallet_info`
+	local wallet_info=`./massa-client -p "$massa_password" -j wallet_info`
 	local private_key=`jq -r "[.[]] | .[0].private_key" <<< "$wallet_info"`
-	local resp=`./massa-client node_add_staking_private_keys "$private_key"`
+	local resp=`./massa-client -p "$massa_password" node_add_staking_private_keys "$private_key"`
 	if grep -q "error" <<< "$resp"; then
 		printf_n "$t_rpk"
 	else
@@ -283,19 +289,19 @@ node_add_staking_private_keys() {
 	fi
 }
 node_testnet_rewards_program_ownership_proof() {
-	local wallet_info=`./massa-client -j wallet_info`
+	local wallet_info=`./massa-client -p "$massa_password" -j wallet_info`
 	local main_address=`jq -r "[.[]] | .[0].address_info.address" <<< "$wallet_info"`
 	local discord_id
 	printf "$t_ctrp1"
 	read -r discord_id
-	local resp=`./massa-client -j node_testnet_rewards_program_ownership_proof "$main_address" "$discord_id" | jq -r`
+	local resp=`./massa-client -p "$massa_password"-j node_testnet_rewards_program_ownership_proof "$main_address" "$discord_id" | jq -r`
 	printf_n "$t_ctrp2" "$resp"
 }
 other() {
 	if [ "$raw_output" = "true" ]; then
-		local resp=`./massa-client -j "$action" "$@" 2>&1`
+		local resp=`./massa-client -p "$massa_password" -j "$action" "$@" 2>&1`
 	else
-		local resp=`./massa-client "$action" "$@" 2>&1`
+		local resp=`./massa-client -p "$massa_password" "$action" "$@" 2>&1`
 	fi
 	if grep -q 'error: Found argument' <<< "$resp"; then
 		printf_n "$t_err"
@@ -308,6 +314,19 @@ other() {
 # Actions
 sudo apt install jq bc -y &>/dev/null
 cd $HOME/massa/massa-client/
+if [ ! -n "$massa_password" ]; then
+	printf_n "$t_err_mp1"
+	https://raw.githubusercontent.com/Phantom1605/blocks-for-scripts/main/insert-variable.sh
+fi
+if [ ! -n "$massa_password" ]; then
+	printf_n "$t_err_mp2"
+	return 1 2>/dev/null; exit 1
+fi
+cd $HOME/massa/massa-client/
+if grep -q "wrong password" <<< `./massa-client -p "$massa_password" 2>&1`; then
+	printf_n "$t_err_wp"
+	return 1 2>/dev/null; exit 1
+fi
 if grep -q "check if your node is running" <<< `./massa-client get_status`; then
 	printf_n "$t_err_nwn"
 else
