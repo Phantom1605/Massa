@@ -214,7 +214,7 @@ wallet_info() {
 	if [ "$raw_output" = "true" ]; then
 		printf_n "`jq -r "[.[]]" <<< "$wallet_info"`"
 	else
-		local staking_addresses=`./massa-client -j node_get_staking_addresses`
+		local staking_addresses=`./massa-client -p "$massa_password" -j node_get_staking_addresses`
 		local wallets=`jq -r "to_entries[]" <<< "$wallet_info" | tr -d '[:space:]' | sed 's%}{%} {%g'`
 		printf_n
 		for wallet in $wallets; do
